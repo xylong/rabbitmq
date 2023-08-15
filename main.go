@@ -1,18 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"github.com/streadway/amqp"
 	"log"
+	"rabbitmq/AppInit"
 )
 
 func main() {
 	// 连接mq
-	dsn := fmt.Sprintf("amqp://%s:%s@%s:%d/", "root", "123456", "localhost", 5672)
-	conn, err := amqp.Dial(dsn)
-	if err != nil {
-		log.Fatal(err)
-	}
+	conn := AppInit.GetConn()
 	defer conn.Close()
 
 	// 获取channel
@@ -29,7 +25,7 @@ func main() {
 	}
 
 	// 发送
-	body := "Hello World!"
+	body := "test001"
 	if err := c.Publish("", q.Name, false, false, amqp.Publishing{
 		ContentType: "text/plain",
 		Body:        []byte(body),
