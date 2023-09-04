@@ -22,7 +22,9 @@ func main() {
 			// 模拟入库
 			userModel.UserID = int(time.Now().Unix())
 			mq := Lib.NewMQ()
-			if err := mq.SendMessage(constant.RegisterQueue, strconv.Itoa(userModel.UserID)); err != nil {
+			err = mq.SendMessage(constant.UserExchange, constant.UserRegister, strconv.Itoa(userModel.UserID))
+			defer mq.Channel.Close()
+			if err != nil {
 				log.Println(err)
 			}
 
@@ -30,5 +32,20 @@ func main() {
 		}
 	})
 
-	router.Run(":8080")
+	c := make(chan error)
+
+	go func() {
+		if err := router.Run(":8080"); err != nil {
+			c <- err
+		}
+	}()
+
+	go func() {
+		if err := Lib.UserQueueInit(); err != nil {
+			c <- err
+		}
+	}()
+
+	err := <-c
+	log.Fatal(err)
 }
