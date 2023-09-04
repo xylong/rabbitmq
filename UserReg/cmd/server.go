@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"rabbitmq/Lib"
 	"rabbitmq/UserReg/Models"
+	"rabbitmq/constant"
 	"strconv"
 	"time"
 )
@@ -21,9 +22,10 @@ func main() {
 			// 模拟入库
 			userModel.UserID = int(time.Now().Unix())
 			mq := Lib.NewMQ()
-			if err := mq.SendMessage(Lib.Register, strconv.Itoa(userModel.UserID)); err != nil {
+			if err := mq.SendMessage(constant.RegisterQueue, strconv.Itoa(userModel.UserID)); err != nil {
 				log.Println(err)
 			}
+
 			context.JSON(http.StatusOK, gin.H{"result": userModel})
 		}
 	})
