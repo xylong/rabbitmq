@@ -53,14 +53,14 @@ func (m *MQ) SendMessage(exchange, key string, message string) error {
 /*
 Consume 消费消息
 queue 队列名
-consumer 消费者
+consumer 消费者名称
 callback 回调函数，处理从队列中取出的消息
 */
-func (m *MQ) Consume(queue, consumer string, callback func(<-chan amqp.Delivery)) {
+func (m *MQ) Consume(queue, consumer string, callback func(<-chan amqp.Delivery, string)) {
 	message, err := m.Channel.Consume(queue, consumer, false, false, false, false, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	callback(message)
+	callback(message, consumer)
 }
